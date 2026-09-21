@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "dashboards": {
+      "dashboards": "Dashboard",
+      "home": "Home"
+    },
+    "registration": {
+      "registration": "Registration",
+      "new": "New Registration",
+      "expired": "Expired Registrations"
+    },
+    "leads": {
+      "leads": "Lead Management",
+      "new": "New Lead",
+      "todaySchedule": "Today's Schedule",
+      "followUp": "Follow-up"
+    },
+    "master": {
+      "master": "Master",
+      "category": "Category",
+      "productSeries": "Product Series",
+      "model": "Model",
+      "variant": "Variant",
+      "variantStructure": "Variant Structure"
+    },
+    "itemMaster": {
+      "itemMaster": "Item Master",
+      "list": "Create Item"
+    },
+    "logout": "Logout",
+    "settings": {
+      "settings": "Settings",
+      "general": "General",
+      "appearance": "Appearance"
+    }
+  }
+}

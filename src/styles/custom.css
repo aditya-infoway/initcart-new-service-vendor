@@ -1,0 +1,177 @@
+/* ========================================
+   CUSTOM COLOR VARIABLES
+======================================== */
+:root {
+  --main-color: #E20A17;
+  --primary-color: #003399;
+
+  --white: #ffffff;
+  --black: #000000;
+
+  --main-light: #ffebec;
+  --primary-light: #e6ecff;
+
+  --main-dark: #b30812;
+  --primary-dark: #002266;
+}
+
+/* ========================================
+   BACKGROUND COLORS
+======================================== */
+.bg-main {
+  background-color: var(--main-color);
+}
+
+.bg-primary {
+  background-color: var(--primary-color);
+}
+
+.bg-main-light {
+  background-color: var(--main-light);
+}
+
+.bg-primary-light {
+  background-color: var(--primary-light);
+}
+
+.bg-main-dark {
+  background-color: var(--main-dark);
+}
+
+.bg-primary-dark {
+  background-color: var(--primary-dark);
+}
+
+.bg-white {
+  background-color: var(--white);
+}
+
+.bg-black {
+  background-color: var(--black);
+}
+
+/* ========================================
+   TEXT COLORS
+======================================== */
+.text-main {
+  color: var(--main-color);
+}
+
+.text-primary {
+  color: var(--primary-color);
+}
+
+.text-main-light {
+  color: var(--main-light);
+}
+
+.text-primary-light {
+  color: var(--primary-light);
+}
+
+.text-main-dark {
+  color: var(--main-dark);
+}
+
+.text-primary-dark {
+  color: var(--primary-dark);
+}
+
+.text-white {
+  color: var(--white);
+}
+
+.text-black {
+  color: var(--black);
+}
+
+/* ========================================
+   BORDER COLORS
+======================================== */
+.border-main {
+  border-color: var(--main-color);
+}
+
+.border-primary {
+  border-color: var(--primary-color);
+}
+
+.border-main-light {
+  border-color: var(--main-light);
+}
+
+.border-primary-light {
+  border-color: var(--primary-light);
+}
+
+.border-main-dark {
+  border-color: var(--main-dark);
+}
+
+.border-primary-dark {
+  border-color: var(--primary-dark);
+}
+
+/* ========================================
+   BUTTONS
+======================================== */
+.btn-main {
+  background: var(--main-color);
+  color: var(--white);
+  border: 1px solid var(--main-color);
+  transition: 0.3s;
+}
+
+.btn-main:hover {
+  background: var(--main-dark);
+  border-color: var(--main-dark);
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: var(--white);
+  border: 1px solid var(--primary-color);
+  transition: 0.3s;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+/* ========================================
+   HOVER TEXT COLORS
+======================================== */
+.hover-main:hover {
+  color: var(--main-color);
+}
+
+.hover-primary:hover {
+  color: var(--primary-color);
+}
+
+/* ========================================
+   HOVER BACKGROUND COLORS
+======================================== */
+.hover-bg-main:hover {
+  background-color: var(--main-color);
+}
+
+.hover-bg-primary:hover {
+  background-color: var(--primary-color);
+}
+
+.input-label {
+  font-weight: 800;
+}
+label {
+  font-weight: 800;
+}
+
+/* Big center dot before each submenu item */
+a.outline-hidden.transition-colors span.mr-1.truncate::before {
+  content: '•';
+  font-size: 18px;
+  margin-right: 8px;
+  color: currentColor;
+}

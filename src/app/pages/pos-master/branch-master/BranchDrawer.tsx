@@ -1,0 +1,441 @@
+// Import Dependencies
+import {
+  Dialog,
+  DialogPanel,
+  Transition,
+  TransitionChild,
+} from "@headlessui/react";
+import {
+  BanknotesIcon,
+  BuildingLibraryIcon,
+  BuildingStorefrontIcon,
+  ClipboardDocumentListIcon,
+  EnvelopeIcon,
+  KeyIcon,
+  MapPinIcon,
+  PhoneIcon,
+  UserIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import { Controller, useForm } from "react-hook-form";
+import { Fragment, useEffect, useMemo, useState } from "react";
+
+// Local Imports
+import { Button, Input } from "@/components/ui";
+import { GhostSpinner } from "@/components/ui";
+import { Listbox } from "@/components/shared/form/StyledListbox";
+import { Post, Patch, toastsuccessmsg, toasterrormsg } from "@/ApiHelper";
+import {
+  Branch,
+  BranchFormValues,
+  BRANCH_STATUS_OPTIONS,
+  BRANCH_TYPE_OPTIONS,
+  buildBranchFormValues,
+  buildBranchPayload,
+} from "./data";
+
+// ----------------------------------------------------------------------
+
+interface BranchDrawerProps {
+  isOpen: boolean;
+  close: () => void;
+  branch: Branch | null;
+  onSaved: () => void;
+}
+
+function FileField({
+  label,
+  required,
+  previewUrl,
+  fileVal,
+  onPick,
+}: {
+  label: string;
+  required?: boolean;
+  previewUrl?: string | null;
+  fileVal?: File | null;
+  onPick: (f: File) => void;
+}) {
+  return (
+    <div>
+      <label className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-dark-200">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <div className="flex items-center gap-3 rounded-xl border border-gray-300 bg-white px-3 py-2.5 dark:border-dark-500 dark:bg-dark-800">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-primary/40 bg-primary/5 px-3 py-1.5 text-sm font-semibold text-primary transition hover:bg-primary/10">
+          Choose File
+          <input
+            type="file"
+            accept="image/*,.pdf"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) onPick(f);
+              e.target.value = "";
+            }}
+          />
+        </label>
+        <span className="truncate text-sm text-gray-600 dark:text-dark-200">
+          {fileVal
+            ? fileVal.name
+            : previewUrl
+            ? "Existing file"
+            : "No file chosen"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+export function BranchDrawer({ isOpen, close, branch, onSaved }: BranchDrawerProps) {
+  const isEdit = Boolean(branch && branch.id > 0);
+  const [saving, setSaving] = useState(false);
+
+  const defaultValues = useMemo(() => buildBranchFormValues(branch), [branch]);
+
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors, isDirty },
+  } = useForm<BranchFormValues>({ defaultValues, mode: "onTouched" });
+
+  useEffect(() => {
+    if (isOpen) reset(buildBranchFormValues(branch));
+  }, [branch, isOpen, reset]);
+
+  const handleClose = () => {
+    reset();
+    close();
+  };
+
+  const onSubmit = async (values: BranchFormValues) => {
+    setSaving(true);
+    try {
+      const { formData, data } = buildBranchPayload(values, isEdit);
+      // Always send as multipart/form-data — server expects it for file-capable endpoints
+      const payload = formData ?? (() => {
+        const fd = new FormData();
+        Object.entries(data).forEach(([k, v]) => {
+          if (v !== null && v !== undefined) fd.append(k, String(v));
+        });
+        return fd;
+      })();
+      if (isEdit) {
+        await Patch(`pos/branches/${branch!.id}/`, payload, true);
+      } else {
+        await Post("pos/branches/", payload, true);
+      }
+      toastsuccessmsg(isEdit ? "Branch updated successfully." : "Branch created successfully.");
+      onSaved();
+      handleClose();
+    } catch (e: any) {
+      toasterrormsg(
+        e?.response?.data?.detail ||
+          e?.response?.data?.message ||
+          (isEdit ? "Failed to update branch." : "Failed to create branch."),
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-100" onClose={handleClose}>
+        {/* Backdrop */}
+        <TransitionChild
+          as="div"
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+          className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity dark:bg-black/40"
+        />
+
+        {/* Slide-over */}
+        <TransitionChild
+          as={DialogPanel}
+          enter="ease-out transform-gpu transition-transform duration-200"
+          enterFrom="translate-x-full"
+          enterTo="translate-x-0"
+          leave="ease-in transform-gpu transition-transform duration-200"
+          leaveFrom="translate-x-0"
+          leaveTo="translate-x-full"
+          className="fixed top-0 right-0 flex h-full w-full lg:max-w-[60%] xl:max-w-[55%] transform-gpu flex-col bg-white dark:bg-dark-700"
+        >
+          {/* Header */}
+          <div className="bg-primary flex shrink-0 items-center justify-between border-b border-primary/20 px-5 py-4">
+            <div>
+              <h3 className="text-lg font-semibold text-white">
+                {isEdit ? "Edit Branch" : "Add Branch"}
+              </h3>
+              <p className="mt-0.5 text-sm text-white/75">
+                {isEdit ? "Update branch details" : "Create a new POS branch"}
+              </p>
+            </div>
+            <Button
+              onClick={handleClose}
+              variant="flat"
+              isIcon
+              className="size-8 rounded-full text-white hover:bg-white/10"
+            >
+              <XMarkIcon className="size-5" />
+            </Button>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="flex grow flex-col overflow-hidden">
+            <div className="hide-scrollbar grow space-y-5 overflow-y-auto px-5 py-5">
+
+              {/* Branch Type */}
+              <Controller
+                control={control}
+                name="branchType"
+                rules={{ required: "Branch type is required" }}
+                render={({ field: { value, onChange, ...rest } }) => (
+                  <Listbox
+                    data={BRANCH_TYPE_OPTIONS}
+                    placeholder="Select Branch Type"
+                    value={BRANCH_TYPE_OPTIONS.find((o) => o.id === value) ?? null}
+                    onChange={(item: any) => onChange(item?.id ?? "")}
+                    label={<>Select Branch Type <span className="text-red-500">*</span></>}
+                    displayField="label"
+                    {...rest}
+                  />
+                )}
+              />
+
+              {/* Branch Details */}
+              <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-dark-500 dark:bg-dark-750 sm:p-5 space-y-4">
+                <h4 className="flex items-center gap-2 text-base font-semibold text-primary-600 dark:text-primary-400">
+                  <BuildingStorefrontIcon className="size-5" />
+                  Branch Details
+                </h4>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Input
+                    {...register("branchName", { required: "Branch name is required" })}
+                    prefix={<BuildingStorefrontIcon className="size-4" />}
+                    placeholder="Branch Name"
+                    label={<>Branch Name <span className="text-red-500">*</span></>}
+                    error={errors.branchName?.message}
+                  />
+                  <Input
+                    {...register("ownerName", { required: "Owner name is required" })}
+                    prefix={<UserIcon className="size-4" />}
+                    placeholder="Owner Name"
+                    label={<>Owner Name <span className="text-red-500">*</span></>}
+                    error={errors.ownerName?.message}
+                  />
+                </div>
+              </div>
+
+              {/* Contact Info */}
+              <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-dark-500 dark:bg-dark-750 sm:p-5 space-y-4">
+                <h4 className="flex items-center gap-2 text-base font-semibold text-primary-600 dark:text-primary-400">
+                  <PhoneIcon className="size-5" />
+                  Contact Info
+                </h4>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <Input
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Invalid email" },
+                    })}
+                    prefix={<EnvelopeIcon className="size-4" />}
+                    placeholder="Email"
+                    label={<>Email <span className="text-red-500">*</span></>}
+                    error={errors.email?.message}
+                  />
+                  <Input
+                    {...register("phone", {
+                      required: "Phone is required",
+                      minLength: { value: 10, message: "Min 10 digits" },
+                    })}
+                    prefix={<PhoneIcon className="size-4" />}
+                    placeholder="Phone"
+                    label={<>Phone <span className="text-red-500">*</span></>}
+                    error={errors.phone?.message}
+                  />
+                  {!isEdit && (
+                    <Input
+                      {...register("password", {
+                        required: "Password is required",
+                        minLength: { value: 8, message: "Min 8 characters" },
+                      })}
+                      type="password"
+                      prefix={<KeyIcon className="size-4" />}
+                      placeholder="Password"
+                      label={<>Password <span className="text-red-500">*</span></>}
+                      error={errors.password?.message}
+                    />
+                  )}
+                </div>
+                {!isEdit && (
+                  <p className="text-xs text-gray-500 dark:text-dark-300">
+                    Password must be at least 8 characters with letters and numbers.
+                  </p>
+                )}
+              </div>
+
+              {/* Address */}
+              <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-dark-500 dark:bg-dark-750 sm:p-5 space-y-4">
+                <h4 className="flex items-center gap-2 text-base font-semibold text-primary-600 dark:text-primary-400">
+                  <MapPinIcon className="size-5" />
+                  Address
+                </h4>
+                <div>
+                  <label className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-dark-200">
+                    Address <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    {...register("address", { required: "Address is required" })}
+                    rows={3}
+                    placeholder="Full address"
+                    className="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:border-dark-500 dark:bg-dark-800 dark:text-dark-100"
+                  />
+                  {errors.address && (
+                    <p className="mt-1 text-xs text-error">{errors.address.message}</p>
+                  )}
+                </div>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <Input
+                    {...register("city", { required: "City is required" })}
+                    prefix={<MapPinIcon className="size-4" />}
+                    placeholder="City"
+                    label={<>City <span className="text-red-500">*</span></>}
+                    error={errors.city?.message}
+                  />
+                  <Input
+                    {...register("state", { required: "State is required" })}
+                    prefix={<MapPinIcon className="size-4" />}
+                    placeholder="State"
+                    label={<>State <span className="text-red-500">*</span></>}
+                    error={errors.state?.message}
+                  />
+                  <Input
+                    {...register("pincode", { required: "Pincode is required" })}
+                    placeholder="Pincode"
+                    label={<>Pincode <span className="text-red-500">*</span></>}
+                    error={errors.pincode?.message}
+                  />
+                </div>
+              </div>
+
+              {/* Bank Details */}
+              <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-dark-500 dark:bg-dark-750 sm:p-5 space-y-4">
+                <h4 className="flex items-center gap-2 text-base font-semibold text-primary-600 dark:text-primary-400">
+                  <BanknotesIcon className="size-5" />
+                  Bank Details
+                </h4>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <Input
+                    {...register("bankName", { required: "Bank name is required" })}
+                    prefix={<BuildingLibraryIcon className="size-4" />}
+                    placeholder="Bank Name"
+                    label={<>Bank Name <span className="text-red-500">*</span></>}
+                    error={errors.bankName?.message}
+                  />
+                  <Input
+                    {...register("accountNumber", { required: "Account number is required" })}
+                    placeholder="Account Number"
+                    label={<>Account Number <span className="text-red-500">*</span></>}
+                    error={errors.accountNumber?.message}
+                  />
+                  <Input
+                    {...register("ifscCode", { required: "IFSC code is required" })}
+                    placeholder="IFSC Code"
+                    label={<>IFSC Code <span className="text-red-500">*</span></>}
+                    error={errors.ifscCode?.message}
+                  />
+                </div>
+                <div className="sm:max-w-xs">
+                  <Input
+                    {...register("upiId")}
+                    placeholder="UPI ID"
+                    label="UPI ID"
+                  />
+                </div>
+              </div>
+
+              {/* Documents */}
+              <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-dark-500 dark:bg-dark-750 sm:p-5 space-y-4">
+                <h4 className="flex items-center gap-2 text-base font-semibold text-primary-600 dark:text-primary-400">
+                  <ClipboardDocumentListIcon className="size-5" />
+                  Documents Upload
+                </h4>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <FileField
+                    label="License File"
+                    fileVal={watch("licenseFile")}
+                    previewUrl={watch("licenseUrl")}
+                    onPick={(f) => setValue("licenseFile", f, { shouldDirty: true })}
+                  />
+                  <FileField
+                    label="GST Certificate"
+                    fileVal={watch("gstCertificateFile")}
+                    previewUrl={watch("gstUrl")}
+                    onPick={(f) => setValue("gstCertificateFile", f, { shouldDirty: true })}
+                  />
+                  <FileField
+                    label="ID Proof"
+                    required
+                    fileVal={watch("idProofFile")}
+                    previewUrl={watch("idProofUrl")}
+                    onPick={(f) => setValue("idProofFile", f, { shouldDirty: true })}
+                  />
+                </div>
+                <FileField
+                  label="Branch Logo"
+                  required
+                  fileVal={watch("branchLogoFile")}
+                  previewUrl={watch("logoUrl")}
+                  onPick={(f) => setValue("branchLogoFile", f, { shouldDirty: true })}
+                />
+              </div>
+
+              {/* Status (edit only) */}
+              {isEdit && (
+                <Controller
+                  control={control}
+                  name="status"
+                  render={({ field: { value, onChange, ...rest } }) => (
+                    <Listbox
+                      data={BRANCH_STATUS_OPTIONS}
+                      placeholder="Select Status"
+                      value={BRANCH_STATUS_OPTIONS.find((o) => o.id === value) ?? null}
+                      onChange={(item: any) => onChange(item?.id ?? value)}
+                      label="Status"
+                      displayField="label"
+                      {...rest}
+                    />
+                  )}
+                />
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex shrink-0 justify-end gap-3 border-t border-gray-200 px-5 py-4 dark:border-dark-500">
+              <Button type="button" onClick={handleClose} disabled={saving}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                color="primary"
+                disabled={saving || (isEdit && !isDirty)}
+                className="gap-2"
+              >
+                {saving && <GhostSpinner variant="soft" className="size-4 border-2" />}
+                {isEdit ? "Update Branch" : "Create Branch"}
+              </Button>
+            </div>
+          </form>
+        </TransitionChild>
+      </Dialog>
+    </Transition>
+  );
+}
