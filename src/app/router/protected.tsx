@@ -173,7 +173,107 @@ const protectedRoutes: RouteObject = {
           }),
         },
 
+                 // ── TRAVEL - AGENCY
+        {
+          path: "services/travel",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/travel-packages/index")).default,
+          }),
+        },
+        {
+          path: "services/travel/add",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/travel-packages/AddTravelService")).default,
+          }),
+        },
+        {
+          path: "services/travel/edit/:id",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/travel-packages/AddTravelService")).default,
+          }),
+        },
 
+        // ── PROFESSIONAL
+        {
+          path: "services/professional",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/professional-services/index")).default,
+          }),
+        },
+        {
+          path: "services/professional/add",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/professional-services/AddProfessionalService")).default,
+          }),
+        },
+        {
+          path: "services/professional/edit/:id",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/professional-services/AddProfessionalService")).default,
+          }),
+        },
+
+
+        // ── HOTEL SERVICES
+        {
+          path: "services/hotel",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/hotel-services/index")).default,
+          }),
+        },
+        {
+          path: "services/hotel/add",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/hotel-services/AddHotelService")).default,
+          }),
+        },
+        {
+          path: "services/hotel/edit/:id",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/hotel-services/AddHotelService")).default,
+          }),
+        },
+
+
+        // ── RESTAURANT SERVICES
+        {
+          path: "services/restaurant",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/restaurant-services/index")).default,
+          }),
+        },
+        {
+          path: "services/restaurant/add",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/restaurant-services/AddrestaurantService")).default,
+          }),
+        },
+        {
+          path: "services/restaurant/edit/:id",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/restaurant-services/AddrestaurantService")).default,
+          }),
+        },
+
+        // ── HEALTHCARE -SERVICES
+        {
+          path: "services/healthcare",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/healthcare-services/index")).default,
+          }),
+        },
+        {
+          path: "services/healthcare/add",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/healthcare-services/AddHealthcareService")).default,
+          }),
+        },
+        {
+          path: "services/healthcare/edit/:id",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/healthcare-services/AddHealthcareService")).default,
+          }),
+        },
          
 
         // ── Dynamic Services Route (all other service types) ──────────
