@@ -1,3 +1,4 @@
+//src/api/dynamicServiceApi.ts
 import { Get, Post, Patch, Delete } from "@/ApiHelper";
 
 // ==================== INTERFACES ====================

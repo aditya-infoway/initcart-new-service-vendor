@@ -1,3 +1,4 @@
+// src/app/pages/routes/protected.tsx
 import { Navigate, RouteObject } from "react-router";
 
 import AuthGuard from "@/middleware/AuthGuard";
@@ -111,7 +112,71 @@ const protectedRoutes: RouteObject = {
           ],
         },
 
-        // ── Dynamic Services Route (Single route for all service types) ───────
+        // ── SALON (custom pages — old-style with country dropdowns) ─────
+        // NOTE: These must be ABOVE "services/:serviceType" so the
+        // dynamic route doesn't swallow them.
+        {
+          path: "services/salon",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/salon-services/index")).default,
+          }),
+        },
+        {
+          path: "services/salon/add",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/salon-services/AddSalonService")).default,
+          }),
+        },
+        {
+          path: "services/salon/edit/:id",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/salon-services/AddSalonService")).default,
+          }),
+        },
+        // ── GYM 
+        {
+          path: "services/gym",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/gym-services/index")).default,
+          }),
+        },
+        {
+          path: "services/gym/add",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/gym-services/AddGymService")).default,
+          }),
+        },
+        {
+          path: "services/gym/edit/:id",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/gym-services/AddGymService")).default,
+          }),
+        },
+
+         // ── TECH - INDUSTRY 
+        {
+          path: "services/tech",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/tech-services/index")).default,
+          }),
+        },
+        {
+          path: "services/tech/add",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/tech-services/AddTechService")).default,
+          }),
+        },
+        {
+          path: "services/tech/edit/:id",
+          lazy: async () => ({
+            Component: (await import("@/app/pages/vendor/tech-services/AddTechService")).default,
+          }),
+        },
+
+
+         
+
+        // ── Dynamic Services Route (all other service types) ──────────
         {
           path: "services/:serviceType",
           lazy: async () => ({
